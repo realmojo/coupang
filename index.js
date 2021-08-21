@@ -5,6 +5,7 @@ const webdriver = require("selenium-webdriver");
 const { By } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const fs = require("fs");
+var robot = require("robotjs");
 
 const getWords = async () => {
   return new Promise((resolve) => {
@@ -38,14 +39,14 @@ const run = async () => {
   await driver.sleep(1000);
   loginInput.click();
   await driver.sleep(1000);
-  await loginInput.sendKeys("ID");
+  await loginInput.sendKeys("s_craftshop");
   await driver.sleep(1000);
 
   const passwordInput = await driver.findElement(By.name("password"));
   await driver.sleep(1000);
   passwordInput.click();
   await driver.sleep(1000);
-  await passwordInput.sendKeys("PW");
+  await passwordInput.sendKeys("sala7571!@#");
   await driver.sleep(1000);
 
   const submit = await driver.findElement(
@@ -63,36 +64,36 @@ const run = async () => {
     await driver.sleep(20000);
 
     let count = 0;
-    console.log("인기게시물 좋아요를 실행합니다.");
-    for (let i = 1; i <= 3; i++) {
-      for (let j = 1; j <= 3; j++) {
-        console.log(`${++count}번째 게시물 좋아요를 실행합니다.`);
-        let post = await driver.findElement(
-          By.xpath(
-            `//*[@id="react-root"]/section/main/article/div[1]/div/div/div[${i}]/div[${j}]/a`
-          )
-        );
-        await driver.sleep(1000);
-        post.click();
-        await driver.sleep(5000);
+    // console.log("인기게시물 좋아요를 실행합니다.");
+    // for (let i = 1; i <= 3; i++) {
+    //   for (let j = 1; j <= 3; j++) {
+    //     console.log(`${++count}번째 게시물 좋아요를 실행합니다.`);
+    //     let post = await driver.findElement(
+    //       By.xpath(
+    //         `//*[@id="react-root"]/section/main/article/div[1]/div/div/div[${i}]/div[${j}]/a`
+    //       )
+    //     );
+    //     await driver.sleep(1000);
+    //     post.click();
+    //     await driver.sleep(5000);
 
-        let likeBtn = await driver.findElement(
-          By.xpath(
-            "/html/body/div[6]/div[2]/div/article/div[3]/section[1]/span[1]/button"
-          )
-        );
-        await driver.sleep(1000);
-        likeBtn.click();
-        await driver.sleep(3000);
+    //     let likeBtn = await driver.findElement(
+    //       By.xpath(
+    //         "/html/body/div[6]/div[2]/div/article/div[3]/section[1]/span[1]/button"
+    //       )
+    //     );
+    //     await driver.sleep(1000);
+    //     likeBtn.click();
+    //     await driver.sleep(3000);
 
-        let closeBtn = await driver.findElement(
-          By.xpath("/html/body/div[6]/div[3]/button")
-        );
-        await driver.sleep(1000);
-        closeBtn.click();
-        await driver.sleep(10000);
-      }
-    }
+    //     let closeBtn = await driver.findElement(
+    //       By.xpath("/html/body/div[6]/div[3]/button")
+    //     );
+    //     await driver.sleep(1000);
+    //     closeBtn.click();
+    //     await driver.sleep(10000);
+    //   }
+    // }
 
     console.log("일반게시물 좋아요를 실행합니다.");
     count = 0;
@@ -108,6 +109,28 @@ const run = async () => {
         post.click();
         await driver.sleep(5000);
 
+        let isMine = await driver
+          .findElement(
+            By.xpath(
+              "/html/body/div[6]/div[2]/div/article/header/div[2]/div[1]/div/span/a"
+            )
+          )
+          .getText();
+        await driver.sleep(1000);
+
+        if (isMine === "s_craftshop") {
+          console.log("본인의 게시물은 작업하지 않습니다.");
+          await driver.sleep(1000);
+
+          let closeBtn = await driver.findElement(
+            By.xpath("/html/body/div[6]/div[3]/button")
+          );
+          await driver.sleep(1000);
+          closeBtn.click();
+          await driver.sleep(10000);
+          continue;
+        }
+
         let likeBtn = await driver.findElement(
           By.xpath(
             "/html/body/div[6]/div[2]/div/article/div[3]/section[1]/span[1]/button"
@@ -116,6 +139,34 @@ const run = async () => {
         await driver.sleep(1000);
         likeBtn.click();
         await driver.sleep(3000);
+
+        console.log("댓글을 등록합니다.1");
+        try {
+          let commentTextarea = await driver.findElement(
+            By.xpath(
+              "/html/body/div[6]/div[2]/div/article/div[3]/section[3]/div/form/textarea"
+            )
+            // By.className("Ypffh")
+          );
+          await driver.sleep(1000);
+          commentTextarea.click();
+          await driver.sleep(1000);
+          console.log("댓글을 등록합니다.2");
+          robot.typeString("사진이 참 멋지네요^^ 우리 소통하고 맞팔해요💕");
+          await driver.sleep(1000);
+          console.log("댓글을 등록합니다.3");
+          let commentBtn = await driver.findElement(
+            By.xpath(
+              "/html/body/div[6]/div[2]/div/article/div[3]/section[3]/div[1]/form/button[2]"
+            )
+          );
+          await driver.sleep(1000);
+          commentBtn.click();
+          await driver.sleep(10000);
+        } catch {
+          console.log("댓글을 등록할 수 없으므로 잠시 대기합니다.");
+          await driver.sleep(3000);
+        }
 
         let closeBtn = await driver.findElement(
           By.xpath("/html/body/div[6]/div[3]/button")
