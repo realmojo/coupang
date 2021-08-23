@@ -58,12 +58,19 @@ const run = async () => {
 
   console.log("인스타그램을 태그검색을 합니다.");
 
+  const commentArr = [
+    "사진이 참 멋지네요^^ 우리 소통하고 맞팔해요💕",
+    "피드가 너무 멋져요😀 소통하고 맞팔해요💕",
+    "사진 잘보고가요😀 소통하고 맞팔해요💕",
+  ];
+
   for (let a = 0; a < words.length; a++) {
     await driver.get(`https://www.instagram.com/explore/tags/${words[a]}/`);
     console.log(`${words[a]} 단어를 검색 후 20초 기다립니다.`);
     await driver.sleep(20000);
 
     let count = 0;
+    let followCount = 0;
     // console.log("인기게시물 좋아요를 실행합니다.");
     // for (let i = 1; i <= 3; i++) {
     //   for (let j = 1; j <= 3; j++) {
@@ -140,34 +147,59 @@ const run = async () => {
         likeBtn.click();
         await driver.sleep(3000);
 
-        console.log("댓글을 등록합니다.1");
-        try {
-          let commentTextarea = await driver.findElement(
-            By.xpath(
-              "/html/body/div[6]/div[2]/div/article/div[3]/section[3]/div/form/textarea"
-            )
-            // By.className("Ypffh")
-          );
-          await driver.sleep(1000);
-          commentTextarea.click();
-          await driver.sleep(1000);
-          console.log("댓글을 등록합니다.2");
-          robot.typeString("사진이 참 멋지네요^^ 우리 소통하고 맞팔해요💕");
-          await driver.sleep(1000);
-          console.log("댓글을 등록합니다.3");
-          let commentBtn = await driver.findElement(
-            By.xpath(
-              "/html/body/div[6]/div[2]/div/article/div[3]/section[3]/div[1]/form/button[2]"
-            )
-          );
-          await driver.sleep(1000);
-          commentBtn.click();
-          await driver.sleep(10000);
-        } catch {
-          console.log("댓글을 등록할 수 없으므로 잠시 대기합니다.");
-          await driver.sleep(3000);
-        }
+        // console.log("댓글을 등록합니다.1");
+        // try {
+        //   let commentTextarea = await driver.findElement(
+        //     By.xpath(
+        //       "/html/body/div[6]/div[2]/div/article/div[3]/section[3]/div/form/textarea"
+        //     )
+        //     // By.className("Ypffh")
+        //   );
+        //   await driver.sleep(1000);
+        //   commentTextarea.click();
+        //   await driver.sleep(1000);
+        //   console.log("댓글을 등록합니다.2");
+        //   robot.typeString(commentArr[j - 1]);
+        //   await driver.sleep(1000);
+        //   console.log("댓글을 등록합니다.3");
+        //   let commentBtn = await driver.findElement(
+        //     By.xpath(
+        //       "/html/body/div[6]/div[2]/div/article/div[3]/section[3]/div[1]/form/button[2]"
+        //     )
+        //   );
+        //   await driver.sleep(1000);
+        //   commentBtn.click();
+        //   await driver.sleep(10000);
+        // } catch {
+        //   console.log("댓글을 등록할 수 없으므로 잠시 대기합니다.");
+        //   await driver.sleep(3000);
+        // }
 
+        // let followBtnTxt = await driver
+        //   .findElement(
+        //     By.xpath(
+        //       "/html/body/div[6]/div[2]/div/article/header/div[2]/div[1]/div[2]/button"
+        //     )
+        //   )
+        //   .getText();
+        // await driver.sleep(1000);
+        // console.log(followBtnTxt);
+        // if (followBtnTxt === "팔로우" && followCount < 10) {
+        //   console.log("팔로우를 진행합니다.");
+        //   let followBtn = await driver.findElement(
+        //     By.xpath(
+        //       "/html/body/div[6]/div[2]/div/article/header/div[2]/div[1]/div[2]/button"
+        //     )
+        //   );
+        //   await driver.sleep(1000);
+        //   followBtn.click();
+        //   followCount++;
+        //   await driver.sleep(4000);
+        // } else {
+        //   console.log("이미 팔로우를 했습니다.");
+        // }
+
+        console.log("게시물을 닫습니다.");
         let closeBtn = await driver.findElement(
           By.xpath("/html/body/div[6]/div[3]/button")
         );
