@@ -1,0 +1,114 @@
+<table>
+	<tbody>
+		<tr>
+			<td style="color: #ff00ff; background-color:#FFFFFF">Q</TD>
+			<td style="background-color: #442244; color: #442244">Y</td>
+			<td style="color: #FFFF00; background-color:#442244">A</td>
+		</tr>
+		<tr>
+			<td style="color: #FFEEFE; background-color:#990000">Q</td>
+			<td style="color: #FFFF00; background-color:#FF0">M</td>
+			<td style="color: #000000; background-color:#FF7777">O</td>
+		</tr>
+	</tbody>
+</table>
+
+<ul>
+	<li>Item:
+		<ol>
+			<li>Point:
+				<div>
+					<ul>
+						<li>
+							<ul>
+								<ol></ol>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</li>
+		</ol>
+	</li>
+	<li>elem2</li>
+
+</ul>
+<ul>
+	<li>simple list1
+	</li>
+</ul>
+<ul></ul>
+
+<!-- <ol>
+	<li>
+		<ol>
+			<li></li>
+		</ol>
+	</li>
+</ol> -->
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+<script>
+	// 타겟 태그
+	const selector = "ul, ol";
+
+	// 깊이와 최대값
+	let depth = 0;
+	let max = 0;
+
+	// ul과 ol태그의 객체를 가져온다.
+	$(selector).each(function () {
+		let obj = $(this);
+
+		// 맨 아래의 자식요소가 가장 깊은 것이므로 부모의 ul, ol을 다시 구한다.
+		let par = obj.parents(selector);
+		console.log(par)
+
+		// 부모 객체가 있다는 것은 현재 객체가 자식 객체(깊이가 있음) 것을 의미한다.
+		// 부모객체가 있는것의 길이와 자신의 길이(1)을 더하여 깊이의 위치를 구한다.
+		depth = par ? par.length + 1 : 1;
+		max = depth > max ? depth : max;
+	});
+	console.log(max);
+
+	// // 3자리를 6자리로 변환
+	// const colorConvert = (color) => {
+	// 	if (color.length === 6) { // 6자리면 기본값으로 반환c
+	// 		return color;
+	// 	}
+
+	// 	const length = color.length;
+	// 	let convertColor = '';
+
+	// 	// 3자리일 경우에는 동일하게 하나씩 붙여줘야함
+	// 	for (let i in color) {
+	// 		convertColor += `${color[i]}${color[i]}`;
+	// 	}
+	// 	return convertColor;
+	// }
+
+	// function solution() {
+	// 	// style속성을 접근하기 위해 td값을 가져옴
+	// 	const TD = $('table > tbody > tr > td');
+	// 	let answer = '';
+
+	// 	// td값 순회
+	// 	$.each(TD, function () {
+	// 		const o = $(this);
+	// 		const styles = o.attr('style');
+	// 		const [first, second] = styles.split(';');
+
+	// 		// color 코드만 추출 후 대문자로 통일
+	// 		const fColor = first.split(':')[1].trim().substr(1).toUpperCase();
+	// 		const sColor = second.split(':')[1].trim().substr(1).toUpperCase();
+
+	// 		if (colorConvert(fColor) !== colorConvert(sColor)) {
+	// 			answer += o.text();
+	// 		}
+	// 	})
+	// 	return answer;
+	// }
+
+	// console.log(solution())
+
+</script>
