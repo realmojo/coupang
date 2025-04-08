@@ -14,63 +14,75 @@ const cpMenuItems = require("./cp-category.json");
 const webdriver = require("selenium-webdriver");
 const { By } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
-// const webdriver = require("selenium-webdriver");
-// const { By } = require("selenium-webdriver");
-// const chrome = require("selenium-webdriver/chrome");
-// const moment = require("moment");
 
-// const gs_cred = require("./sheet.json");
-// const { GoogleSpreadsheet } = require("google-spreadsheet");
-// const doc = new GoogleSpreadsheet(
-//   "1wDltbK7Q9j2Qg0ze23s7jGKCaaF81UFUs8OAf6a7zs0"
-// );
+const gs_cred = require("./credentials.json");
+const { GoogleSpreadsheet } = require("google-spreadsheet");
+const { JWT } = require("google-auth-library");
 
-const createCPShortUrl = async (link) => {
-  const url = `https://partners.coupang.com/api/v1/url/any?coupangUrl=${encodeURI(
-    link
-  )}`;
-  const response = await axios.get(url);
+console.log(gs_cred);
+const serviceAccountAuth = new JWT({
+  email: gs_cred.client_email,
+  key: gs_cred.private_key,
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
 
-  return response;
-};
+// const createCPShortUrl = async (link) => {
+//   const url = `https://partners.coupang.com/api/v1/url/any?coupangUrl=${encodeURI(
+//     link
+//   )}`;
+//   const response = await axios.get(url);
 
-// month, 날짜 입력후, 구글 시트 맞추고 실행
+//   return response;
+// };
+
 const run = async () => {
   console.log("START");
 
-  const menuItems = cpMenuItems.slice(0, 3);
+  const menuItems = cpMenuItems;
   console.log(menuItems);
 
-  // const url =
-  //   "https://www.coupang.com/vp/products/12804417?itemId=6172130063&vendorItemId=3018137311&sourceType=CATEGORY&categoryId=501340";
-  // const cpShortUrl = createCPShortUrl(url);
+  const doc = new GoogleSpreadsheet(
+    "1wDltbK7Q9j2Qg0ze23s7jGKCaaF81UFUs8OAf6a7zs0",
+    serviceAccountAuth
+  );
 
-  // console.log(cpShortUrl);
+  await doc.loadInfo();
+  const sheet = doc.sheetsByIndex[0];
+
+  const options = new chrome.Options();
+
+  // 디버그 포트로 실행된 크롬에 attach
+  options.options_["debuggerAddress"] = "127.0.0.1:9222";
 
   await new chrome.ServiceBuilder("./chromedriver").build();
-  const driver = await new webdriver.Builder().forBrowser("chrome").build();
+  const driver = await new webdriver.Builder()
+    .forBrowser("chrome")
+    .setChromeOptions(options)
+    .build();
 
-  const pages = 2;
+  const pages = 17;
   for (const item of menuItems) {
-    const params = {
-      BigCategory: item.bigCategory,
-      MiddleCategory: item.middleCategory,
-      category: item.category,
-    };
-
     for (let i = 1; i <= pages; i++) {
-      await driver.sleep(1000);
-      const url = `${item.url}?page=${i}`;
+      const url = `${item.link}?page=${i}`;
       try {
+        console.log(url);
         // HTML 파일 로컬 경로 설정 (파일 경로는 절대경로로 설정해주세요)
+        await driver.sleep(1000);
         await driver.get(url);
 
+        await driver.sleep(1000);
         // 상품 요소를 모두 선택
         const products = await driver.findElements(
           By.css("#productList li.baby-product")
         );
 
+        let results = [];
         for (let product of products) {
+          const params = {
+            BigCategory: item.bigCategory,
+            MiddleCategory: item.middleCategory,
+            Category: item.category,
+          };
           // 썸네일 이미지 src 속성 가져오기
           let thumbnailElement = await product.findElement(
             By.css("dt.image img")
@@ -89,15 +101,30 @@ const run = async () => {
           );
           let name = await nameElement.getText();
 
-          console.log("상품명:", name);
-          console.log("링크:", link);
-          console.log("썸네일:", thumbnail);
-          console.log("--------------------------------------");
+          // 가격 가져오기
+          let priceElement = await product.findElement(By.css(".price-value"));
+          let price = await priceElement.getText();
+
+          params.Title = name;
+          params.Thumbnail = thumbnail;
+          params.Link = link;
+          params.Price = price;
+
+          console.log(params);
+          console.log(
+            "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+          );
+          results.push(params);
         }
+        console.log("스프레드시트에 저장을 시작합니다.");
+        await driver.sleep(1000);
+        await sheet.addRows(results);
+        console.log(
+          `스프레드시트에 저장(${results.length}개)이 완료되었습니다.`
+        );
       } catch (error) {
+        console.log("url 오류 발생 지점: ", url);
         console.error("에러 발생:", error);
-      } finally {
-        await driver.quit();
       }
     }
   }
